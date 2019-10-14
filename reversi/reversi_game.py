@@ -1,6 +1,5 @@
 # Written by Toby Dragon
 
-import copy
 from datetime import datetime
 from reversi.reversi_board import ReversiBoard
 from reversi.reversi_players import *
