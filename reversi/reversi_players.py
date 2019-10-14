@@ -3,6 +3,8 @@ import copy
 import numpy as np
 import hashlib
 
+depth_threshold = 4
+
 
 class HumanPlayer:
 
@@ -51,7 +53,7 @@ class GreedyComputerPlayer:
         for move in board.calc_valid_moves(self.symbol):
             board_copy = copy.deepcopy(board)
             board_copy.make_move(self.symbol, move)
-            score = board_copy.calc_scores()[self.symbol]
+            score = _get_board_score(board_copy, self.symbol)
 
             if score > max_score:
                 greedy_move = move
@@ -105,31 +107,35 @@ def mini_max(board, symbol, depth):
         else:
 
             #calculate and return the end score
-            scores = board.calc_scores()
-            return scores[symbol] - scores[get_opponent_symbol(symbol)]
+            return _get_board_score(board, symbol)
 
     #if you have moves:
     else:
 
-        values = []
+        if depth < depth_threshold:
 
-        #for each move
-        for move in moves:
+            values = []
 
-            #make a board for each move
-            board_copy = copy.deepcopy(board)
-            board_copy.make_move(symbol, move)
+            #for each move
+            for move in moves:
 
-            #recursive call for each move
-            values.append(mini_max(board_copy, get_opponent_symbol(symbol), depth + 1))
+                #make a board for each move
+                board_copy = copy.deepcopy(board)
+                board_copy.make_move(symbol, move)
 
-        #if it was your turn, pick the best move for you
-        if depth % 2 == 0:
-            return max(values)
+                #recursive call for each move
+                values.append(mini_max(board_copy, get_opponent_symbol(symbol), depth + 1))
 
-        #if it was the opponent turn, pick worst move for you (best for them)
+            #if it was your turn, pick the best move for you
+            if depth % 2 == 0:
+                return max(values)
+
+            #if it was the opponent turn, pick worst move for you (best for them)
+            else:
+                return min(values)
+
         else:
-            return min(values)
+            return _get_board_score(board, symbol)
 
 
 def calc_unique_moves(board, symbol):
@@ -211,6 +217,11 @@ def _get_arr_board(board):
             #leave empty tiles as zeros
 
     return arr_board
+
+
+def _get_board_score(board, symbol):
+    scores = board.calc_scores()
+    return scores[symbol] - scores[get_opponent_symbol(symbol)]
 
 
 def get_opponent_symbol(symbol):
