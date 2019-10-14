@@ -1,8 +1,8 @@
-# adapted by Toby Dragon from original source code by Al Sweigart, available with creative commons license: https://inventwithpython.com/#donate
 import random
 import copy
 import numpy as np
 import hashlib
+
 
 class HumanPlayer:
 
@@ -46,20 +46,20 @@ class GreedyComputerPlayer:
 
     def get_move(self, board):
 
-        maxscore = -1
+        max_score = -1
 
         for move in board.calc_valid_moves(self.symbol):
-            boardcopy = copy.deepcopy(board)
-            boardcopy.make_move(self.symbol, move)
-            score = boardcopy.calc_scores()[self.symbol]
+            board_copy = copy.deepcopy(board)
+            board_copy.make_move(self.symbol, move)
+            score = board_copy.calc_scores()[self.symbol]
 
-            if score > maxscore:
-                greedymove = move
-                maxscore = score
+            if score > max_score:
+                greedy_move = move
+                max_score = score
 
-        return greedymove
+        return greedy_move
 
-
+#ignore this class and the mini_max function, as we already use the transposition table version
 class MiniMaxComputerPlayer:
 
     def __init__(self, symbol):
@@ -69,9 +69,9 @@ class MiniMaxComputerPlayer:
         values = []
         moves = board.calc_valid_moves(self.symbol)
         for move in moves:
-            cp = copy.deepcopy(board)
-            cp.make_move(self.symbol, move)
-            values.append(mini_max(cp, self.symbol, 1))
+            board_copy = copy.deepcopy(board)
+            board_copy.make_move(self.symbol, move)
+            values.append(mini_max(board_copy, self.symbol, 1))
 
         return moves[values.index(max(values))]
 
@@ -91,10 +91,10 @@ def mini_max(board, symbol, depth):
 
         values = []
         for move in moves:
-            cp = copy.deepcopy(board)
-            cp.make_move(symbol, move)
+            board_copy = copy.deepcopy(board)
+            board_copy.make_move(symbol, move)
 
-            values.append(mini_max(cp, get_opponent_symbol(symbol), depth + 1))
+            values.append(mini_max(board_copy, get_opponent_symbol(symbol), depth + 1))
 
         if depth % 2 == 0:
             return max(values)
@@ -118,17 +118,16 @@ class TransposeMiniMaxComputerPlayer:
         if len(moves) == 1:
             return moves[0]
 
-        #for each move
         for move in moves:
 
-            #get a boardstate after each move
-            cp = copy.deepcopy(board)
-            cp.make_move(self.symbol, move)
+            #get a board state after the move
+            board_copy = copy.deepcopy(board)
+            board_copy.make_move(self.symbol, move)
 
             #get the value of that move
-            values.append(transpose_mini_max(cp, self.symbol, 1))
+            values.append(transpose_mini_max(board_copy, self.symbol, 1))
 
-        #get the move at the max value
+        #get the move at the index of the max value
         return moves[values.index(max(values))]
 
 
@@ -161,11 +160,11 @@ def transpose_mini_max(board, symbol, depth):
         for move in moves:
 
             #make a board for each move
-            cp = copy.deepcopy(board)
-            cp.make_move(symbol, move)
+            board_copy = copy.deepcopy(board)
+            board_copy.make_move(symbol, move)
 
             #recursive call for each move
-            values.append(transpose_mini_max(cp, get_opponent_symbol(symbol), depth + 1))
+            values.append(transpose_mini_max(board_copy, get_opponent_symbol(symbol), depth + 1))
 
         #if it was your turn, pick the best move for you
         if depth % 2 == 0:
@@ -177,55 +176,59 @@ def transpose_mini_max(board, symbol, depth):
 
 
 def calc_unique_moves(board, symbol):
+
     u_moves = []
     hashes = set()
+
+    #grab the valid moves
     moves = board.calc_valid_moves(symbol)
 
+    #for each move
     for move in moves:
+
+        #make a copy board and do a move
         cp = copy.deepcopy(board)
         cp.make_move(symbol, move)
+
+        #get the set of hashes of that board state
         board_hash = _hash_set(board)
 
+        #if there are no hashes in common with the set of hashes, it is a unique move
         if not hashes & board_hash:
+
+            #add that board's hashes to the set of hashes
             hashes |= board_hash
+
+            #add it to unique moves
             u_moves.append(move)
 
     return u_moves
+
+
+def _rotation_hashes(board):
+
+    #grab an empty set
+    r_set = set()
+
+    #for each of the 4 rotations
+    for i in range(4):
+
+        #rotate by 90 degrees
+        board = np.rot90(board)
+
+        #convert board to a string, add the md5 hash to the set (hashes already in the set are not added)
+        r_set.add(hashlib.md5(str(board).encode()))
+
+    return r_set
 
 
 def _hash_set(board):
 
     #get the board in an array
     arr_board = _get_arr_board(board)
-    h_set = set()
 
-    #for each rotation
-    for i in range(4):
-        arr_board = np.rot90(arr_board)
-        arr_string = str(arr_board)
-        arr_hash = hashlib.md5(arr_string.encode())
-        h_set.add(arr_hash)
-
-    #mirror the board with transpose
-    arr_board = arr_board.T
-
-    #for each mirrored rotation
-    for i in range(4):
-
-        #rotate the board 90 degrees
-        arr_board = np.rot90(arr_board)
-
-        #convert it to a string
-        arr_string = str(arr_board)
-
-        #encode the string and get the md5 hash (string)
-        arr_hash = hashlib.md5(arr_string.encode())
-
-        #add the hash to the set (sets can only have unique elements)
-        h_set.add(arr_hash)
-
-    #return the set of all the hashes of the board (len <=8)
-    return h_set
+    #combine the rotation hashes of the array and the array transposed
+    return _rotation_hashes(arr_board) | _rotation_hashes(arr_board.T)
 
 
 def _get_arr_board(board):
@@ -235,20 +238,26 @@ def _get_arr_board(board):
     #make an array
     arr_board = np.zeros((size, size))
 
-    #going through every
+    #going through every tile
     for x in range(size):
         for y in range(size):
+
+            #grab the symbol
             symbol = board.get_symbol_for_position([x, y])
 
+            #put in values for each symbol
             if symbol == 'X':
                 arr_board[x, y] = 1
             if symbol == 'O':
                 arr_board[x, y] = -1
 
+            #leave empty tiles as zeros
+
     return arr_board
 
 
 def get_opponent_symbol(symbol):
+    #returns the opponent symbol, assumes X and O are only chars being used
     if symbol == 'X':
         return 'O'
     else:
