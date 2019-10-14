@@ -59,51 +59,8 @@ class GreedyComputerPlayer:
 
         return greedy_move
 
-#ignore this class and the mini_max function, as we already use the transposition table version
+
 class MiniMaxComputerPlayer:
-
-    def __init__(self, symbol):
-        self.symbol = symbol
-
-    def get_move(self, board):
-        values = []
-        moves = board.calc_valid_moves(self.symbol)
-        for move in moves:
-            board_copy = copy.deepcopy(board)
-            board_copy.make_move(self.symbol, move)
-            values.append(mini_max(board_copy, self.symbol, 1))
-
-        return moves[values.index(max(values))]
-
-
-def mini_max(board, symbol, depth):
-
-    moves = board.calc_valid_moves(symbol)
-
-    if not moves:
-        if board.game_continues():
-            return mini_max(board, get_opponent_symbol(symbol), depth + 1)
-        else:
-            scores = board.calc_scores()
-            return scores[symbol] - scores[get_opponent_symbol(symbol)]
-
-    else:
-
-        values = []
-        for move in moves:
-            board_copy = copy.deepcopy(board)
-            board_copy.make_move(symbol, move)
-
-            values.append(mini_max(board_copy, get_opponent_symbol(symbol), depth + 1))
-
-        if depth % 2 == 0:
-            return max(values)
-
-        else:
-            return min(values)
-
-
-class TransposeMiniMaxComputerPlayer:
 
     def __init__(self, symbol):
         self.symbol = symbol
@@ -125,13 +82,13 @@ class TransposeMiniMaxComputerPlayer:
             board_copy.make_move(self.symbol, move)
 
             #get the value of that move
-            values.append(transpose_mini_max(board_copy, self.symbol, 1))
+            values.append(mini_max(board_copy, self.symbol, 1))
 
         #get the move at the index of the max value
         return moves[values.index(max(values))]
 
 
-def transpose_mini_max(board, symbol, depth):
+def mini_max(board, symbol, depth):
 
     moves = calc_unique_moves(board, symbol)
 
@@ -142,7 +99,7 @@ def transpose_mini_max(board, symbol, depth):
         if board.game_continues():
 
             #switch to opponent's turn
-            return transpose_mini_max(board, get_opponent_symbol(symbol), depth + 1)
+            return mini_max(board, get_opponent_symbol(symbol), depth + 1)
 
         #if the game is over
         else:
@@ -164,7 +121,7 @@ def transpose_mini_max(board, symbol, depth):
             board_copy.make_move(symbol, move)
 
             #recursive call for each move
-            values.append(transpose_mini_max(board_copy, get_opponent_symbol(symbol), depth + 1))
+            values.append(mini_max(board_copy, get_opponent_symbol(symbol), depth + 1))
 
         #if it was your turn, pick the best move for you
         if depth % 2 == 0:
