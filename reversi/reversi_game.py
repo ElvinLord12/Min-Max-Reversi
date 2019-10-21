@@ -6,6 +6,8 @@ from reversi_board import ReversiBoard
 from reversi_players import HumanPlayer
 from reversi_players import RandomComputerPlayer
 from reversi_players import GreedyComputerPlayer
+from reversi_players import MinMaxPlayer
+from reversi_players import MinMaxPlayerCorner
 
 
 class ReversiGame:
@@ -65,14 +67,14 @@ def print_scores(score_map):
     print()
 
 
-def compare_players(player1, player2):
+def compare_players(player1, player2, games):
     game_count_map = {player1.symbol: 0, player2.symbol: 0, "TIE": 0}
     time_elapsed_map = {player1.symbol: 0, player2.symbol: 0}
-    for i in range(1, 1001):
+    for i in range(1, games):
         if i % 100 == 0:
             print(i, "games finished")
 
-        if i >= 500:
+        if i >= (games/2):
             game = ReversiGame(player2, player1, show_status=False)
             game_count_map[game.calc_winner()] += 1
             decision_times = game.get_decision_times()
@@ -90,8 +92,9 @@ def compare_players(player1, player2):
 
 
 def main():
-    ReversiGame(HumanPlayer("X"), GreedyComputerPlayer("O"))
-    # compare_players(GreedyComputerPlayer("X"), RandomComputerPlayer("O"))
+    # ReversiGame(HumanPlayer("X"), MinMaxPlayer("O"))
+    compare_players(MinMaxPlayer("X"),MinMaxPlayerCorner("O"), 11)
+
 
 
 if __name__ == "__main__":
