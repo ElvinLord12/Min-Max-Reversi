@@ -71,9 +71,9 @@ def compare_players(player1, player2, board_size=8, board_filename=None):
 
     for i in range(1, 11):
         if i % 2 == 0:
-            game = ReversiGame(player2, player1, show_status=True, board_size=board_size, board_filename=board_filename)
+            game = ReversiGame(player2, player1, show_status=False, board_size=board_size, board_filename=board_filename)
         else:
-            game = ReversiGame(player1, player2, show_status=True, board_size=board_size, board_filename=board_filename)
+            game = ReversiGame(player1, player2, show_status=False, board_size=board_size, board_filename=board_filename)
 
         game_count_map[game.calc_winner()] += 1
         decision_times = game.get_decision_times()
@@ -85,8 +85,8 @@ def compare_players(player1, player2, board_size=8, board_filename=None):
 
 
 def main():
-    #ReversiGame(HumanPlayer("X"), TransposeMiniMaxComputerPlayer("O"))
-    compare_players(MiniMaxComputerPlayer("X"), GreedyComputerPlayer("O"), board_size=8)
+    ReversiGame(GreedyComputerPlayer("X"), GreedyComputerPlayer("O"), board_size=8)
+    #compare_players(TranspositionMiniMaxComputerPlayer("X"), MiniMaxComputerPlayer("O"), board_size=8)
 
 
 if __name__ == "__main__":

@@ -48,7 +48,7 @@ class GreedyComputerPlayer:
 
     def get_move(self, board):
 
-        max_score = -1
+        max_score = -99
 
         for move in board.calc_valid_moves(self.symbol):
             board_copy = copy.deepcopy(board)
@@ -69,8 +69,9 @@ class MiniMaxComputerPlayer:
 
     def get_move(self, board):
 
+        symbol = self.symbol
         #get a list of the unique moves
-        moves = calc_unique_moves(board, self.symbol)
+        moves = board.calc_valid_moves(symbol)
         values = []
 
         #if there's only one move, do that
@@ -81,18 +82,25 @@ class MiniMaxComputerPlayer:
 
             #get a board state after the move
             board_copy = copy.deepcopy(board)
-            board_copy.make_move(self.symbol, move)
+            board_copy.make_move(symbol, move)
 
             #get the value of that move
-            values.append(mini_max(board_copy, self.symbol, 1))
+            values.append(mini_max(board_copy, symbol, 0))
 
-        #get the move at the index of the max value
-        return moves[values.index(max(values))]
+        #get the moves at the tied for the max value
+        max_value = max(values)
+        tied_moves = []
+        for i in range(len(values)):
+            if values[i] == max_value:
+                tied_moves.append(moves[i])
+
+        #return a random one of them
+        return random.choice(tied_moves)
 
 
 def mini_max(board, symbol, depth):
 
-    moves = calc_unique_moves(board, symbol)
+    moves = board.calc_valid_moves(symbol)
 
     #if you have no moves
     if not moves:
@@ -108,6 +116,10 @@ def mini_max(board, symbol, depth):
 
             #calculate and return the end score
             return _get_board_score(board, symbol)
+
+    elif len(moves) == 1:
+        board.make_move(symbol, moves[0])
+        return mini_max(board, get_opponent_symbol(symbol), depth + 1)
 
     #if you have moves:
     else:
@@ -135,88 +147,10 @@ def mini_max(board, symbol, depth):
                 return min(values)
 
         else:
+            if depth % 2 == 1:
+                symbol = get_opponent_symbol(symbol)
+
             return _get_board_score(board, symbol)
-
-
-def calc_unique_moves(board, symbol):
-
-    u_moves = []
-    hashes = set()
-
-    #grab the valid moves
-    moves = board.calc_valid_moves(symbol)
-
-    #for each move
-    for move in moves:
-
-        #make a copy board and do a move
-        cp = copy.deepcopy(board)
-        cp.make_move(symbol, move)
-
-        #get the set of hashes of that board state
-        board_hash = _hash_set(board)
-
-        #if there are no hashes in common with the set of hashes, it is a unique move
-        if not hashes & board_hash:
-
-            #add that board's hashes to the set of hashes
-            hashes |= board_hash
-
-            #add it to unique moves
-            u_moves.append(move)
-
-    return u_moves
-
-
-def _rotation_hashes(board):
-
-    #grab an empty set
-    r_set = set()
-
-    #for each of the 4 rotations
-    for i in range(4):
-
-        #rotate by 90 degrees
-        board = np.rot90(board)
-
-        #convert board to a string, add the md5 hash to the set (hashes already in the set are not added)
-        r_set.add(hashlib.md5(str(board).encode()))
-
-    return r_set
-
-
-def _hash_set(board):
-
-    #get the board in an array
-    arr_board = _get_arr_board(board)
-
-    #combine the rotation hashes of the array and the array transposed
-    return _rotation_hashes(arr_board) | _rotation_hashes(arr_board.T)
-
-
-def _get_arr_board(board):
-    #grab the size of the board
-    size = board.get_size()
-
-    #make an array
-    arr_board = np.zeros((size, size))
-
-    #going through every tile
-    for x in range(size):
-        for y in range(size):
-
-            #grab the symbol
-            symbol = board.get_symbol_for_position([x, y])
-
-            #put in values for each symbol
-            if symbol == 'X':
-                arr_board[x, y] = 1
-            if symbol == 'O':
-                arr_board[x, y] = -1
-
-            #leave empty tiles as zeros
-
-    return arr_board
 
 
 def _get_board_score(board, symbol):
