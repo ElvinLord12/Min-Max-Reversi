@@ -3,7 +3,7 @@ import copy
 import numpy as np
 import hashlib
 
-depth_threshold = 4
+depth_threshold = 3
 
 
 class HumanPlayer:
@@ -78,6 +78,8 @@ class MiniMaxComputerPlayer:
         if len(moves) == 1:
             return moves[0]
 
+        #THIS IS WHERE YOU WOULD RANK ORDER THE MOVES
+
         for move in moves:
 
             #get a board state after the move
@@ -114,6 +116,10 @@ def mini_max(board, symbol, depth):
         #if the game is over
         else:
 
+            #if its not your turn, get your symbol
+            if depth % 2 == 1:
+                symbol = get_opponent_symbol(symbol)
+
             #calculate and return the end score
             return _get_board_score(board, symbol)
 
@@ -127,6 +133,8 @@ def mini_max(board, symbol, depth):
         if depth < depth_threshold:
 
             values = []
+
+            # THIS IS WHERE YOU WOULD RANK ORDER THE MOVES
 
             #for each move
             for move in moves:

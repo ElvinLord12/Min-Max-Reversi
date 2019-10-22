@@ -68,8 +68,7 @@ def print_scores(score_map):
 def compare_players(player1, player2, board_size=8, board_filename=None):
     game_count_map = {player1.symbol: 0, player2.symbol: 0, "TIE": 0}
     time_elapsed_map = {player1.symbol: 0, player2.symbol: 0}
-
-    for i in range(1, 11):
+    for i in range(0, 10):
         if i % 2 == 0:
             game = ReversiGame(player2, player1, show_status=False, board_size=board_size, board_filename=board_filename)
         else:
@@ -79,14 +78,14 @@ def compare_players(player1, player2, board_size=8, board_filename=None):
         decision_times = game.get_decision_times()
         for symbol in decision_times:
             time_elapsed_map[symbol] += decision_times[symbol]
-        print(i, "games finished")
+        print(i, "games completed")
     print(game_count_map)
     print(time_elapsed_map)
 
 
 def main():
-    ReversiGame(GreedyComputerPlayer("X"), GreedyComputerPlayer("O"), board_size=8)
-    #compare_players(TranspositionMiniMaxComputerPlayer("X"), MiniMaxComputerPlayer("O"), board_size=8)
+    #ReversiGame(GreedyComputerPlayer("X"), GreedyComputerPlayer("O"), board_size=8)
+    compare_players(MiniMaxComputerPlayer("X"), GreedyComputerPlayer("O"), board_size=6)
 
 
 if __name__ == "__main__":
