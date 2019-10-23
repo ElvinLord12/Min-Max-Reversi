@@ -102,6 +102,54 @@ class MiniMaxComputerPlayer:
         return random.choice(tied_moves)
 
 
+class MiniMaxPlayerWithPruning:
+
+    def __init__(self, symbol):
+        self.symbol = symbol
+
+    def mini_max_with_pruning(self, board, symbol, depth):
+        moves = board.calc_valid_moves(symbol)
+        if not moves:
+            if board.game_continues():
+                return self.mini_max_with_pruning(board, board.get_opponent_symbol(symbol), depth + 1)
+            else:
+                scores = board.calc_scores()
+                return scores[symbol] - scores[board.get_opponent_symbol(symbol)]
+        else:
+            values = []
+            for move in moves:
+                board_copy = copy.deepcopy(board)
+                board_copy.make_move(symbol, move)
+                values.append(self.mini_max_with_pruning(board_copy, board_copy.get_opponent_symbol(symbol), depth + 1))
+                max_val = max(values[0:1])
+                min_val = min(values[0:1])
+                for value in values[2:]:
+                    if value > max_val:
+                        max_val = value
+                        if depth % 2 == 0:
+                            break
+                    elif value < min_val:
+                        min_val = value
+                        if depth % 2 != 0:
+                            break
+                if depth % 2 == 0:
+                    return max(values)
+                else:
+                    return min(values)
+
+    def get_move(self, board):
+        moves = board.calc_valid_moves(self.symbol)
+        values = []
+        for move in moves:
+            board_copy = copy.deepcopy(board)
+            board_copy.make_move(self.symbol, move)
+            values.append(self.mini_max_with_pruning(board_copy, self.symbol, 1))
+        return moves[values.index(max(values))]
+
+    def get_name(self):
+        return str(type(self).__name__)
+
+
 def mini_max(board, symbol, depth):
 
     moves = board.calc_valid_moves(symbol)
