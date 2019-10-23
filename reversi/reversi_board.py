@@ -1,6 +1,5 @@
 import json
 from copy import deepcopy
-import numpy as np
 
 
 class ReversiBoard:

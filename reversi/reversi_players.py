@@ -1,6 +1,5 @@
 import random
 import copy
-import numpy as np
 import hashlib
 
 depth_threshold = 3
@@ -111,16 +110,16 @@ class MiniMaxPlayerWithPruning:
         moves = board.calc_valid_moves(symbol)
         if not moves:
             if board.game_continues():
-                return self.mini_max_with_pruning(board, board.get_opponent_symbol(symbol), depth + 1)
+                return self.mini_max_with_pruning(board, get_opponent_symbol(symbol), depth + 1)
             else:
                 scores = board.calc_scores()
-                return scores[symbol] - scores[board.get_opponent_symbol(symbol)]
+                return scores[symbol] - scores[get_opponent_symbol(symbol)]
         else:
             values = []
             for move in moves:
                 board_copy = copy.deepcopy(board)
                 board_copy.make_move(symbol, move)
-                values.append(self.mini_max_with_pruning(board_copy, board_copy.get_opponent_symbol(symbol), depth + 1))
+                values.append(self.mini_max_with_pruning(board_copy, get_opponent_symbol(symbol), depth + 1))
                 max_val = max(values[0:1])
                 min_val = min(values[0:1])
                 for value in values[2:]:
@@ -160,16 +159,16 @@ class MiniMaxPlayerWithABPruning:
         moves = board.calc_valid_moves(symbol)
         if not moves:
             if board.game_continues():
-                return self.mini_max_with_pruning(board, board.get_opponent_symbol(symbol), depth + 1)
+                return self.mini_max_with_pruning(board, get_opponent_symbol(symbol), depth + 1)
             else:
                 scores = board.calc_scores()
-                return scores[symbol] - scores[board.get_opponent_symbol(symbol)]
+                return scores[symbol] - scores[get_opponent_symbol(symbol)]
         else:
             values = []
             for move in moves:
                 board_copy = copy.deepcopy(board)
                 board_copy.make_move(symbol, move)
-                values.append(self.mini_max_with_pruning(board_copy, board_copy.get_opponent_symbol(symbol), depth + 1))
+                values.append(self.mini_max_with_pruning(board_copy, get_opponent_symbol(symbol), depth + 1))
                 for value in values:
                     if value > self.beta:
                         break
@@ -193,6 +192,154 @@ class MiniMaxPlayerWithABPruning:
         return str(type(self).__name__)
 
 
+class MinMaxPlayerMilo:
+    def __init__(self, symbol):
+        self.symbol = symbol
+
+    def get_move(self, board):
+        moves = board.calc_valid_moves(self.symbol)
+        scores = []
+
+        if len(moves) == 1:
+            return moves[0]
+        for move in moves:
+            board_state = copy.deepcopy(board)
+            board_state.make_move(self.symbol, move)
+
+            scores.append(self.min_max(board_state, self.symbol, 1))
+
+
+        return moves[scores.index(max(scores))]
+
+    def min_max(self, board, symbol, depth):
+
+        # all valid moves
+        moves = board.calc_valid_moves(symbol)
+
+        if not moves:
+            if board.game_continues():
+                return self.min_max(board, turn(symbol), depth +1)
+            else:
+                return _get_board_score(board, symbol)
+        else:
+            if depth < 4: # depth threshold
+                scores = []
+
+                for move in moves:
+                    board_state = copy.deepcopy(board)
+                    board_state.make_move(symbol, move);
+
+                    scores.append(self.min_max(board_state, turn(symbol), depth + 1))
+
+                # for max player
+                if depth % 2 == 0:
+                    return max(scores)
+
+                # for min player
+                else:
+                    return min(scores)
+
+            else:
+                return _get_board_score(board, symbol)
+
+
+class MinMaxPlayerCorner:
+    def __init__(self, symbol):
+        self.symbol = symbol
+
+    def get_move(self, board):
+        moves = board.calc_valid_moves(self.symbol)
+        scores = []
+
+        for move in moves:
+            if move == [0, 7] or move == [7, 0] or move == [7, 7] or move == [0, 0]:
+                return move
+
+        if len(moves) == 1:
+            return moves[0]
+        for move in moves:
+            board_state = copy.deepcopy(board)
+            board_state.make_move(self.symbol, move)
+
+            scores.append(self.min_max(board_state, self.symbol, 1))
+
+        return moves[scores.index(max(scores))]
+
+    def min_max(self, board, symbol, depth):
+
+        # all valid moves
+        moves = board.calc_valid_moves(symbol)
+
+        if not moves:
+            if board.game_continues():
+                return self.min_max(board, turn(symbol), depth + 1)
+            else:
+                return _get_board_score(board, symbol)
+        else:
+            if depth < 4:  # depth threshold
+                scores = []
+
+                for move in moves:
+                    board_state = copy.deepcopy(board)
+                    board_state.make_move(symbol, move);
+
+                    scores.append(self.min_max(board_state, turn(symbol), depth + 1))
+
+                # for max player
+                if depth % 2 == 0:
+                    max_score = max(scores)
+                    max_choices = []
+                    for score in scores:
+                        if score == max_score:
+                            max_choices.append(score)
+                    return random.choice(max_choices)
+
+                # for min player
+                else:
+                    return min(scores)
+
+            else:
+                return _get_board_score(board, symbol)
+
+
+class MiniMaxComputerPlayerGreedyMove:
+
+    def __init__(self, symbol):
+        self.symbol = symbol
+
+    def get_move(self, board):
+
+        symbol = self.symbol
+        #get a list of the unique moves
+        moves = board.calc_valid_moves(symbol)
+        values = []
+
+        #if there's only one move, do that
+        if len(moves) == 1:
+            return moves[0]
+
+        # moves = reorder_moves(moves)
+
+        for move in moves:
+
+            #get a board state after the move
+            board_copy = copy.deepcopy(board)
+            board_copy.make_move(symbol, move)
+
+            #get the value of that move
+            values.append(mini_max(board_copy, symbol, 0))
+
+        #get the moves at the tied for the max value
+        max_value = max(values)
+        tied_moves = []
+        for i in range(len(values)):
+            if values[i] == max_value:
+                tied_moves.append(moves[i])
+
+        #return a random one of them
+        return random.choice(tied_moves)
+
+
 def mini_max(board, symbol, depth):
 
     moves = board.calc_valid_moves(symbol)
@@ -204,21 +351,21 @@ def mini_max(board, symbol, depth):
         if board.game_continues():
 
             #switch to opponent's turn
-            return mini_max(board, get_opponent_symbol(symbol), depth + 1)
+            return mini_max(board, turn(symbol), depth + 1)
 
         #if the game is over
         else:
 
             #if its not your turn, get your symbol
             if depth % 2 == 1:
-                symbol = get_opponent_symbol(symbol)
+                symbol = turn(symbol)
 
             #calculate and return the end score
             return _get_board_score(board, symbol)
 
     elif len(moves) == 1:
         board.make_move(symbol, moves[0])
-        return mini_max(board, get_opponent_symbol(symbol), depth + 1)
+        return mini_max(board, turn(symbol), depth + 1)
 
     #if you have moves:
     else:
@@ -227,7 +374,7 @@ def mini_max(board, symbol, depth):
 
             values = []
 
-            moves = reorder_moves(moves)
+            # moves = reorder_moves(moves)
 
             #for each move
             for move in moves:
@@ -237,7 +384,7 @@ def mini_max(board, symbol, depth):
                 board_copy.make_move(symbol, move)
 
                 #recursive call for each move
-                values.append(mini_max(board_copy, get_opponent_symbol(symbol), depth + 1))
+                values.append(mini_max(board_copy, turn(symbol), depth + 1))
 
             #if it was your turn, pick the best move for you
             if depth % 2 == 0:
@@ -249,7 +396,7 @@ def mini_max(board, symbol, depth):
 
         else:
             if depth % 2 == 1:
-                symbol = get_opponent_symbol(symbol)
+                symbol = turn(symbol)
 
             return _get_board_score(board, symbol)
 
@@ -282,3 +429,9 @@ def reorder_moves(moves):
             remaining_moves.append(move)
 
     return corner_moves + edge_moves + remaining_moves
+
+def turn(symbol):
+    if symbol == 'X':
+        return 'O'
+    else:
+        return 'X'
