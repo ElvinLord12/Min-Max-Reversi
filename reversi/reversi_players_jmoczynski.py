@@ -1,6 +1,7 @@
 # adapted by Toby Dragon from original source code by Al Sweigart, available with creative commons license: https://inventwithpython.com/#donate
 import random
 import copy
+import math
 
 
 class HumanPlayer:
@@ -168,16 +169,14 @@ class MiniMaxPlayerWithPruning:
 
 class MiniMaxPlayerWithABPruning:
 
-    def __init__(self, symbol, alpha, beta):
+    def __init__(self, symbol):
         self.symbol = symbol
-        self.alpha = alpha
-        self.beta = beta
 
-    def mini_max_with_pruning(self, board, symbol, depth):
+    def mini_max_with_ab_pruning(self, board, symbol, depth, alpha, beta):
         moves = board.calc_valid_moves(symbol)
         if not moves:
             if board.game_continues():
-                return self.mini_max_with_pruning(board, board.get_opponent_symbol(symbol), depth + 1)
+                return self.mini_max_with_ab_pruning(board, board.get_opponent_symbol(symbol), depth + 1, alpha, beta)
             else:
                 scores = board.calc_scores()
                 return scores[symbol] - scores[board.get_opponent_symbol(symbol)]
@@ -186,11 +185,11 @@ class MiniMaxPlayerWithABPruning:
             for move in moves:
                 board_copy = copy.deepcopy(board)
                 board_copy.make_move(symbol, move)
-                values.append(self.mini_max_with_pruning(board_copy, board_copy.get_opponent_symbol(symbol), depth + 1))
+                values.append(self.mini_max_with_ab_pruning(board_copy, board_copy.get_opponent_symbol(symbol), depth + 1, alpha, beta))
                 for value in values:
-                    if value > self.beta:
+                    if value > beta:
                         break
-                    elif value < self.alpha:
+                    elif value < alpha:
                         break
                 if depth % 2 == 0:
                     return max(values)
@@ -203,7 +202,7 @@ class MiniMaxPlayerWithABPruning:
         for move in moves:
             board_copy = copy.deepcopy(board)
             board_copy.make_move(self.symbol, move)
-            values.append(self.mini_max_with_pruning(board_copy, self.symbol, 1))
+            values.append(self.mini_max_with_ab_pruning(board_copy, self.symbol, 1, -math.inf, math.inf))
         return moves[values.index(max(values))]
 
     def get_name(self):

@@ -85,7 +85,8 @@ def compare_players(player1, player2, board_size=8, board_filename=None):
 
 def main():
     #ReversiGame(GreedyComputerPlayer("X"), GreedyComputerPlayer("O"), board_size=8)
-    compare_players(MiniMaxComputerPlayer("X"), GreedyComputerPlayer("O"), board_size=6)
+    # compare_players(MiniMaxComputerPlayer("X"), GreedyComputerPlayer("O"), board_size=6)
+    ReversiGame(MiniMaxPlayerWithABPruning("X"), RandomComputerPlayer("O"), board_size=4)
 
 
 if __name__ == "__main__":
