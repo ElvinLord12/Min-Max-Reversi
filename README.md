@@ -28,7 +28,6 @@ Conclusion
 ### Agent 3: Quiescence-Based Agent
 * **Author**: Christian Martano
 * **Description**: MinMax agent that uses quiescence search in order to determine at what depth within the search tree is the game state stable enough to return minmax values back up the search tree. It does so by calculating a “stability value” that is based off of the total number of moves that both the min and max player have. 
-* **Benefits**: Removes the hard coding of a depth threshold for the algorithm should now know where is the best to stop searching down the tree. Beats the random and greedy player agents at high rates. 
 * **Benefits**: Removes the hard coding of a depth threshold for the algorithm should now know where is the best to stop searching down the tree. Beats the random and greedy player agents at high rates on smaller boards. 
 * **Drawback**: Takes much longer than hardcoded depth threshold for it will continue to look down the tree until it finds stable board states. 
 * **Conclusion**: While this agent works great for smaller boards, it takes a very long time in 8x8 environments for the search tree is so much larger. If there are time limits for indiviual moves, this agent will not do very well.
