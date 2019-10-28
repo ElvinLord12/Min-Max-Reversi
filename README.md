@@ -6,10 +6,11 @@ What are the different strategies for winning a game of Reversi (or Othello)? Ho
 
 ## Different Agents
 ### Agent 1: Corner-Heuristic Agent with Random Optimal Choices
-Description
-Benefits
-Drawback
-Conclusion
+Author: Milo Rue
+Description: Default Mini-Max Agent with a heuristic towards favoring corners and moves that would lead to it occupying a corner. It also avoids moves that would give the opponent the corner position. When scores pulled from min-max are the same it will randomly pick from those choices.
+Benefits: It is able to reliable beat default mini-max and it doesn't always repeat the same games as default did due to the random pick of optimal choices.
+Drawback: It has marginal improvements on default mini-max and sometimes blindly picking corners is actually bad for it and makes it lose vs. other mini-max variants we tried.
+Conclusion: Although this agent is an improvement on mini-max it needs to have a more robust heuristic for determining moves and still needs the improvements in depth of trees.
 ### Agent 2: Edge/Corner-Heuristic Agent with Ordered Choices
 Description
 Benefits
