@@ -5,12 +5,12 @@
 What are the different strategies for winning a game of Reversi (or Othello)? How does the number of tiles one gains on their turn affect the game's outcome? What parts of the board have higher value? How does the order of moves affect the game's outcome? Different strategies for playing Reversi were programmed and analyzed when played against each other.
 
 ## Attempted Agents
-### Agent: MiniMax With Pruning
+### Agent: Mini-Max With Pruning
 * **Author**: Justin Moczynski
-* **Description**: Mini-Max player which prunes out unnecessary branches in the tree representing all of the possible game states by move.
-* **Benefits**:
-* **Drawbacks**:
-* **Conclusion**:
+* **Description**: Mini-Max player which prunes out unnecessary branches in the tree representing all of the possible game states by move in order to decrease the amount of time a Mini-Max player takes to play a move.
+* **Benefits**: This player's turn speed will be greatly decreased as it does not check every possible board state after every possible move if the player has already found an acceptable move.
+* **Drawbacks**: This player, if not programmed correctly, can be hindered in both the speed at which it makes moves and the end result of the game.
+* **Conclusion**: This player was not programmed correctly: the time it took to calculate moves was slower than the original Mini-Max player and it was losing constantly to the original Greedy player.
 * **What Went Wrong**:
 
 ## Final Agents
