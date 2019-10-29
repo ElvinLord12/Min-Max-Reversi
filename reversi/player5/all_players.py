@@ -54,7 +54,7 @@ def get_combined_player(symbol):
     """
     :returns: the best combination of the minimax enhancements that your team can create
     """
-    return AlphaBetaPlayer
+    return AlphaBetaPlayer(symbol)
 
 
 class AlphaBetaPlayer:
