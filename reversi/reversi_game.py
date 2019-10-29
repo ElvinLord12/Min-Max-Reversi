@@ -2,7 +2,7 @@
 
 from datetime import datetime
 from reversi.reversi_board import ReversiBoard
-from reversi.reversi_players import *
+from reversi.player5.reversi_players import *
 
 
 class ReversiGame:
