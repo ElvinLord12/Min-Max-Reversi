@@ -11,7 +11,6 @@ What are the different strategies for winning a game of Reversi (or Othello)? Ho
 * **Benefits**: This player's turn speed will be greatly decreased as it does not check every possible board state after every possible move if the player has already found an acceptable move.
 * **Drawbacks**: This player, if not programmed correctly, can be hindered in both the speed at which it makes moves and the end result of the game.
 * **Conclusion**: This player was not programmed correctly: the time it took to calculate moves was slower than the original Mini-Max player and it was losing constantly to the original Greedy player.
-* **What Went Wrong**:
 
 ## Final Agents
 ### Agent 1: Corner-Heuristic Agent with Random Optimal Choices
